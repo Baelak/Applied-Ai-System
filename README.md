@@ -17,21 +17,20 @@
 - Tasks that don't fit are tracked as "skipped" with an explanation
 
 ### Chronological Sorting
-- `Scheduler.sort_by_time()` reorders any task list by `HH:MM` start time using numeric comparison — insertion order never affects the output
+- It reorders any task list by start time using numeric comparison insertion order never affects the output
 - The final generated schedule is always displayed in time order
 
 ### Conflict Detection
-- `Scheduler.detect_conflicts()` checks every pair of tasks for overlapping windows using: `a.start < b.end AND b.start < a.end`
-- `Scheduler.conflict_warnings()` returns plain warning strings — no crashes, just actionable messages shown directly in the UI
+- It checks every pair of tasks for overlapping windows.
+- It returns plain warning strings, no crashes, just actionable messages shown directly in the UI
 
 ### Recurring Task Auto-Scheduling
-- Marking a `daily` task complete automatically creates the next occurrence for **tomorrow**
-- Marking a `weekly` task complete creates the next occurrence **7 days from today**
-- Always anchored to `date.today()` so the new task is never scheduled in the past
-- `once` tasks are marked done with no follow-up
+- Marking a *daily* task complete automatically creates the next occurrence for **tomorrow**
+- Marking a *weekly* task complete creates the next occurrence **7 days from today**
+- *Once* tasks are marked done with no follow-up
 
 ### Skipped Task Reporting
-- The `Schedule` object tracks both planned tasks and tasks that didn't fit the time budget
+- The *Schedule* object tracks both planned tasks and tasks that didn't fit the time budget
 - The UI surfaces skipped tasks as individual warnings so owners know exactly what was dropped and why
 
 ---
