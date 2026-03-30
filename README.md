@@ -55,3 +55,28 @@ sort_by_time() orders any task list by scheduled_time using numeric minute compa
  calling Pet.complete_task() marks a task done and automatically creates the next occurrence: +1 day for daily tasks, +7 days for weekly tasks, always anchored to today so it never schedules into the past.
 - **Skipped task reporting** >
  the generated Schedule tracks tasks that didn't fit the time budget and lists them separately, so owners know what was left out and why.
+
+## Testing PawPal+
+
+### Run the tests
+
+- python -m pytest tests/test_pawpal.py -v
+
+
+### What the tests cover
+
+13 tests across four categories:
+
+| Category | Tests | What's verified |
+|---|---|---|
+| **Task completion** | 2 | mark_complete() flips status; adding a task increases pet count |
+| **Sorting** | 2 | Out-of-order tasks return in chronological order; same-hour edge case handled correctly |
+| **Recurrence** | 3 | Daily tasks create a +1 day follow-up; weekly creates +7 days; once tasks create nothing |
+| **Conflict detection** | 3 | Exact same start time flagged; overlapping windows flagged; back-to-back tasks correctly not flagged |
+| **Edge cases** | 3 | Empty pet returns no tasks; owner with no pets produces empty schedule; tasks over budget all go to skipped |
+
+### Confidence level
+
+★★★★☆ (4 out of 5 stars)
+
+The core scheduling logic, priority sorting, time-budget fitting, recurring task creation, and conflict detection is fully tested and all 13 tests pass. The one star held back reflects untested areas such as the Streamlit UI wiring, the expand_recurring method, and multi-day scenarios where a recurring task's follow-up itself becomes due.
