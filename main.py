@@ -1,7 +1,7 @@
 from pawpal_system import Owner, Pet, Task, Scheduler
 
 # --- Setup ---
-owner = Owner(name="Jordan", available_time=90)
+owner = Owner(name="Haile", available_time=90)
 scheduler = Scheduler()
 
 # --- Pet 1: dog (tasks added OUT OF ORDER intentionally) ---
