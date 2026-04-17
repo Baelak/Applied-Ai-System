@@ -203,4 +203,4 @@ As for working with Claude Code on this project, it was genuinely useful, one he
 
 ## Demo
 
-<a href="/pawpal_screenshot.jpg/" target="_blank"><img src='/pawpal_screenshot.jpg' title='PawPal App' width='' alt='PawPal App' class='center-block' /></a>
+### [🐾PawPal+ Walkthru Video](https://drive.google.com/file/d/1_vD7UNzo6PYSkBlfJJ9p56fnWCPnnj_e/view?usp=sharing)
