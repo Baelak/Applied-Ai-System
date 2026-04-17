@@ -5,7 +5,7 @@ owner = Owner(name="Haile", available_time=90)
 scheduler = Scheduler()
 
 # --- Pet 1: dog (tasks added OUT OF ORDER intentionally) ---
-dog = Pet(name="Biscuit", type="dog")
+dog = Pet(name="Jegol", type="dog")
 dog.add_task(Task(name="Evening walk",      duration=20, priority="medium", scheduled_time="17:30", frequency="daily"))
 dog.add_task(Task(name="Morning walk",      duration=20, priority="high",   scheduled_time="07:00", frequency="daily"))
 dog.add_task(Task(name="Flea medication",   duration=5,  priority="high",   scheduled_time="09:00", frequency="weekly"))

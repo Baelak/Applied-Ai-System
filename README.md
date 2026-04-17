@@ -1,122 +1,204 @@
-# PawPal+ (Module 2 Project)
+# 🐾 PawPal+ ~ AI-Enhanced Pet Care Scheduler
 
-**🐾 PawPal+** is a smart pet care management app built with Python and Streamlit. It helps a busy pet owner stay on top of daily routines by scheduling tasks, detecting conflicts, and automatically carrying forward recurring activities.
-
----
-
-## Features
-
-### Owner & Pet Management
-- Register an owner with a name and a daily time budget (in minutes)
-- Add multiple pets per owner (dog, cat, bird, etc.)
-- Tasks are scoped to individual pets but scheduled across all of them together
-
-### Priority-First Scheduling
-- Tasks are ranked **high → medium → low** and fitted greedily into the owner's available time
-- Higher-priority tasks (medication, feeding) always claim a slot before lower-priority ones
-- Tasks that don't fit are tracked as "skipped" with an explanation
-
-### Chronological Sorting
-- It reorders any task list by start time using numeric comparison insertion order never affects the output
-- The final generated schedule is always displayed in time order
-
-### Conflict Detection
-- It checks every pair of tasks for overlapping windows.
-- It returns plain warning strings, no crashes, just actionable messages shown directly in the UI
-
-### Recurring Task Auto-Scheduling
-- Marking a *daily* task complete automatically creates the next occurrence for **tomorrow**
-- Marking a *weekly* task complete creates the next occurrence **7 days from today**
-- *Once* tasks are marked done with no follow-up
-
-### Skipped Task Reporting
-- The *Schedule* object tracks both planned tasks and tasks that didn't fit the time budget
-- The UI surfaces skipped tasks as individual warnings so owners know exactly what was dropped and why
+> A smart pet care management app that schedules daily routines, detects conflicts, and uses a Gemini AI agent to suggest pet names from species and themes provided by the user.
 
 ---
 
-## System Design
+## Original PawPal
 
-The app is built on six classes:
+**PawPal** was originally built in Module 2 as a pure Python pet care scheduling system. The goal was to help a busy pet owner manage multiple pets and their daily care routines by modeling owners, pets, and tasks as structured Python classes.
 
-| Class | Role |
+---
+
+## 🐾PawPal+ with Ai✨
+
+**PawPal+** solves a real problem: keeping track of feeding times, walks, medications, and vet calls across multiple pets without anything slipping through the cracks. It matters because missed medications or skipped vet calls have real consequences for animal health.
+
+This project extended the system with a **Gemini AI agent** that suggests pet names based on species and an optional theme. This turns PawPal+ from a pure scheduling tool into an end-to-end pet management assistant from naming a new pet all the way to generating its daily care schedule.
+
+---
+
+## Architecture Overview
+
+```
+🗿 User
+   ↓ fills forms
+Streamlit UI (app.py)
+   ├── species + theme ──→ Gemini 2.5 Flash-Lite (AI Agent) ──→ name suggestions
+   │                                                                   ↓
+   │                                                    
+   👨🏽‍💻 Human picks a name
+   ↓ creates
+Core System (pawpal_system.py)
+   ├── Owner · Pet · Task  (data models)
+   └── Scheduler  (sort · filter · conflict detection · generate plan)
+                    ↓
+             📋 Daily Schedule  ──→ displayed to User
+                    ↓
+          conflict warnings ──→ 👨🏽‍💻 Human reviews & edits
+                    ↓
+          🧪 pytest  (unit tests validate all core logic)
+```
+
+The system has four layers:
+
+| Layer | What it does |
 |---|---|
-| `Task` | A single care activity with time, duration, priority, frequency, and completion state |
-| `Pet` | Groups a pet's details with its task list; handles task completion and recurrence |
-| `Owner` | Holds the time budget and a list of pets; aggregates tasks across all pets |
-| `Schedule` | The output of the scheduler — planned tasks + skipped tasks |
-| `Scheduler` | All algorithmic logic: sorting, filtering, conflict detection, plan generation |
-| `PawPalApp` | CLI entry point for running a demo without the Streamlit UI |
-
-See `uml_final.png` for the full class diagram.
+| **Streamlit UI** | Collects input across 4 sections; renders tables, warnings, and schedule |
+| **AI Agent** | Calls Gemini 2.5 Flash-Lite with the chosen species and optional theme; returns 3 male + 3 female name suggestions |
+| **Core System** | Python data classes handle all state; Scheduler runs sorting, filtering, conflict detection, and plan generation |
+| **Human-in-the-Loop** | Owner reviews AI name suggestions before confirming, and reviews conflict warnings before generating a schedule |
 
 ---
 
-## Getting Started
+## Setup Instructions
 
-### Setup
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/Baelak/Applied-Ai-System
+cd Applied-Ai-System
+```
+
+### 2. Create and activate a virtual environment
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# macOS / Linux
+source .venv/bin/activate
+
+# Windows
+.venv\Scripts\activate
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### Run the app
+### 4. Add your Gemini API key
+
+Create the file `.streamlit/secrets.toml` (this file is git-ignored and never committed):
+
+```toml
+GEMINI_API_KEY = "AIza..."
+```
+
+Get a free key at [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey).
+
+### 5. Run the app
 
 ```bash
 streamlit run app.py
 ```
 
-### Run the CLI demo
+### 6. Run the CLI demo (no UI required)
 
 ```bash
 python pawpal_system.py
 ```
 
----
-
-## Testing PawPal+
+### 7. Run the test suite
 
 ```bash
 python -m pytest tests/test_pawpal.py -v
 ```
 
-### What the tests cover
+---
 
-13 tests across five categories:
+## Sample Interactions
 
-| Category | Tests | What's verified |
+### Example 1 — Dog names, No theme
+
+**Input:** Species: `dog` · Theme: *(empty)*
+
+**AI Output:**
+```
+Male — Finn, Jasper, Milo
+Female — Luna, Daisy, Willow
+
+These names are inspired by nature and gentle sounds.
+```
+![Example 1 Screenshot](assets/example1.png)
+---
+
+### Example 2 — Cat names, Ethiopian theme
+
+**Input:** Species: `cat` · Theme: `Ethiopian`
+
+**AI Output:**
+```
+Male — Gabata, Mekwamiya, Shama
+Female — Kolo, Enjera, Berbere
+
+These names are inspired by traditional Ethiopian tools and cooking implements, reflecting the rich cultural heritage of the region.
+```
+![Example 2 Screenshot](assets/example2.png)
+---
+
+### Example 3 — Bird names, Royal theme
+
+**Input:** Species: `bird` · Theme: `royal`
+
+**AI Output:**
+```
+Male — Sterling, Argent, Oberon
+Female — Sapphire, Pearl, Titania
+
+These names evoke precious jewels and regal characters from classic literature.
+```
+![Example 3 Screenshot](assets/example3.png)
+---
+
+## Design Decisions
+
+Streamlit kept the entire project in Python with no frontend code needed, Gemini 2.5 Flash-Lite was chosen for the AI agent because it's fast and free with no local GPU required. The human in the loop design was a deliberate choice. AI name suggestions and conflict warnings are surfaced to the user but never acted on automatically, keeping the owner in control. The main trade-offs were simplicity over optimality. A greedy scheduler, session-based storage with no database, and a preset task list which are all fast to build and easy to reason about, with known limitations that are acceptable for this scope.
+
+---
+
+## Testing Summary
+
+**13 tests across 5 categories**
+
+| Category | Tests | Outcome |
 |---|---|---|
-| **Task completion** | 2 | mark_complete() flips status; adding a task increases pet count |
-| **Sorting** | 2 | Out-of-order tasks return chronologically; same-hour minute edge case |
-| **Recurrence** | 3 | Daily → +1 day; weekly → +7 days; once → no follow-up |
-| **Conflict detection** | 3 | Exact same time flagged; overlapping windows flagged; back-to-back correctly not flagged |
-| **Edge cases** | 3 | Empty pet; owner with no pets; all tasks exceed budget → all skipped |
+| Task completion | 2 | ✅ Passed — `mark_complete()` and task count both verified |
+| Chronological sorting | 2 | ✅ Passed — out-of-order and same-hour edge cases covered |
+| Recurring tasks | 3 | ✅ Passed — daily (+1 day), weekly (+7 days), once (no follow-up) |
+| Conflict detection | 3 | ✅ Passed — same time, overlapping, and back-to-back all correct |
+| Edge cases | 3 | ✅ Passed — empty pet, owner with no pets, all tasks over budget |
 
 ### Confidence level
 
 ★★★★☆ (4 / 5)
 
-Core scheduling logic is fully covered and all 13 tests pass. The remaining star reflects untested areas: Streamlit UI wiring, the expand_recurring helper, and multi-day recurring chains.
+The core scheduling logic is fully tested and reliable, but the AI name suggester has no automated reliability checks. Gemini's output format varies between calls, meaning the parser can silently return nothing without throwing an error, so the AI portion is functional but not provably consistent.
+
+### What worked well
+- Testing the `Scheduler` class in isolation was straightforward because it takes plain lists of `Task` objects with no mocking required.
+- The conflict detection tests caught a subtle bug early. Back to back tasks where one ends exactly when the next starts were initially being flagged as conflicts incorrectly.
+
+### What wasn't tested
+- **`expand_recurring` helper** — the logic that duplicates daily tasks 12 hours later has no dedicated test.
+- **Gemini API responses** — the AI output format is not validated; if Gemini changes its response structure, the name parser would silently break.
+
+### What I learned
+Writing tests before adding features like the remove/edit task feature made regression checking instant. The edge case tests in particular revealed assumptions that weren't obvious until they broke.
 
 ---
 
-## Smarter Scheduling
+## Reflection
 
-Beyond basic task tracking, PawPal+ includes several algorithmic features:
+Honestly, getting Gemini to return a useful answer was the easy part. The harder part was figuring out where the human should stay in control and what happens when the API goes down. Keeping the AI as a suggestion tool rather than an automation was the best call I made on this project. I also learned that the messiest part of building an AI app isn't the AI, it's the state management around it. If I were to keep building this, I'd add an AI scheduling assistant that recommends task times based on the pet's species, which feels like a much more interesting use of a language model than name suggestions. One thing worth noting is that the name suggester has a clear bias toward Western naming conventions without a theme, Gemini defaults to names like Max or Luna almost every time. The misuse risk is low since it's just pet names, but the theme field could technically be used to prompt the model toward inappropriate content. Gemini's built-in safety filters handle most of that, and the fact that the user has to manually type the name adds another layer. 
 
-- **Priority-first scheduling** >
-Tasks are sorted high → medium → low, then fitted into the owner's available time budget
-- **Chronological sorting** >
-*sort_by_time()* orders any task list by scheduled_time using numeric minute comparison
-- **Conflict detection** >
-*conflict_warnings()* scans for overlapping time windows and returns plain warning strings
-- **Recurring task auto-scheduling** >
-*Pet.complete_task()* marks a task done and creates the next occurrence anchored to today
-- **Skipped task reporting** >
-Schedule tracks tasks that didn't fit the time budget and lists them separately
+As for working with Claude Code on this project, it was genuinely useful, one helpful moment was when it flagged that my API key will be publicly exposed and suggested moving it to a secrets file. The one time it got things wrong was writing `gemini-1.5-flash` as the model name, which threw a 404 because that ID was no longer valid. A good reminder that AI tools can be confident and wrong at the same time.
 
+---
+
+## System Diagram
+![System Diagram](assets/system_diagram.png)
 ---
 
 ## Demo

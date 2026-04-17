@@ -84,6 +84,10 @@ class Pet:
         """Return only tasks that have not been completed."""
         return [t for t in self.tasks if not t.completed]
 
+    def remove_task(self, task: Task) -> None:
+        """Remove a task from this pet's list."""
+        self.tasks = [t for t in self.tasks if t is not task]
+
     def complete_task(self, task: Task) -> None:
         """Mark a task complete and auto-schedule the next occurrence for recurring tasks."""
         task.mark_complete()
